@@ -1,0 +1,196 @@
+---
+interface Props {
+  name: string;
+  role: string;
+  company: string;
+  location: string;
+  headline: string;
+  summary: string;
+  hasProjects: boolean;
+}
+
+const { name, role, company, location, headline, summary, hasProjects } = Astro.props;
+
+// "Daniel García" -> "daniel": a valid identifier for the code card.
+const variableName = name
+  .split(' ')[0]
+  .normalize('NFD')
+  .replace(/\p{Diacritic}/gu, '')
+  .toLowerCase();
+---
+
+<section id="inicio" class="hero" aria-labelledby="hero-title">
+  <div class="container hero__inner">
+    <div class="hero__copy">
+      <p class="eyebrow">{role} @ {company}</p>
+      <h1 id="hero-title" class="hero__title">{name}</h1>
+      <p class="hero__headline">{headline}</p>
+      <p class="hero__summary">{summary}</p>
+
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="#contacto">Hablemos</a>
+        {hasProjects && <a class="btn btn--ghost" href="#proyectos">Ver proyectos</a>}
+      </div>
+
+      <p class="hero__location">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+        {location}
+      </p>
+    </div>
+
+    <figure class="code-card" aria-label="Resumen del perfil como código">
+      <div class="code-card__bar" aria-hidden="true">
+        <span></span><span></span><span></span>
+        <p class="code-card__file">profile.ts</p>
+      </div>
+      <pre class="code-card__body"><code><span class="tok-k">export const</span> {variableName} = {'{'}
+  role: <span class="tok-s">'{role}'</span>,
+  company: <span class="tok-s">'{company}'</span>,
+  basedIn: <span class="tok-s">'{location}'</span>,
+  <span class="tok-c">// a pattern stays only if it</span>
+  <span class="tok-c">// earns its place</span>
+  principle: <span class="tok-s">'domain first'</span>,
+{'}'} <span class="tok-k">as const</span>;</code></pre>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    padding-block: var(--space-8) var(--space-12);
+    overflow: hidden;
+  }
+
+  /* Blueprint grid, faded toward the edges. */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: radial-gradient(ellipse 80% 70% at 30% 40%, #000 40%, transparent 100%);
+  }
+
+  .hero__inner {
+    display: grid;
+    gap: var(--space-6);
+    align-items: center;
+  }
+
+  @media (min-width: 960px) {
+    .hero {
+      padding-block: var(--space-12) var(--space-16);
+    }
+
+    .hero__inner {
+      grid-template-columns: 1.25fr 1fr;
+      gap: var(--space-8);
+    }
+  }
+
+  .hero__copy {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .hero__title {
+    font-size: clamp(2.75rem, 5vw + 1.5rem, 4.75rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+  }
+
+  .hero__headline {
+    font-size: clamp(1.25rem, 1vw + 1rem, 1.625rem);
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+  }
+
+  .hero__summary {
+    max-width: 58ch;
+    color: var(--text-muted);
+    font-size: 1.0625rem;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-1);
+  }
+
+  .hero__location {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+  }
+
+  .code-card {
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--code-bg);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .code-card__bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px var(--space-2);
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  }
+
+  .code-card__bar span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.16);
+  }
+
+  .code-card__file {
+    margin-left: var(--space-1);
+    color: var(--code-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  .code-card__body {
+    margin: 0;
+    padding: var(--space-3);
+    overflow-x: auto;
+    color: var(--code-text);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.8;
+  }
+
+  @media (min-width: 480px) {
+    .code-card__body {
+      font-size: 0.875rem;
+    }
+  }
+
+  .tok-k {
+    color: var(--code-keyword);
+  }
+
+  .tok-s {
+    color: var(--code-string);
+  }
+
+  .tok-c {
+    color: var(--code-muted);
+    font-style: italic;
+  }
+</style>

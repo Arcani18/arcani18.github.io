@@ -1,0 +1,101 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Section from '../components/Section.astro';
+import Principles from '../components/Principles.astro';
+import Experience from '../components/Experience.astro';
+import Projects from '../components/Projects.astro';
+import Evolution from '../components/Evolution.astro';
+import Stack from '../components/Stack.astro';
+import Contact from '../components/Contact.astro';
+import Footer from '../components/Footer.astro';
+import { profile } from '../data/profile';
+
+// Empty lists in profile.ts drop both the section and its nav link, and the numbering follows.
+const sections = [
+  { id: 'enfoque', label: 'Enfoque', hasContent: profile.principles.length > 0 },
+  { id: 'experiencia', label: 'Experiencia', hasContent: profile.experience.length > 0 },
+  { id: 'proyectos', label: 'Proyectos', hasContent: profile.projects.length > 0 },
+  {
+    id: 'stack',
+    label: 'Stack',
+    hasContent: profile.evolution.length > 0 || profile.stack.length > 0,
+  },
+].filter((section) => section.hasContent);
+
+const isVisible = (id: string) => sections.some((section) => section.id === id);
+const numberOf = (id: string) =>
+  String(sections.findIndex((section) => section.id === id) + 1).padStart(2, '0');
+---
+
+<BaseLayout title={`${profile.name} · ${profile.role}`} description={profile.summary}>
+  <Header name={profile.name} navItems={sections} />
+
+  <main id="contenido">
+    <Hero
+      name={profile.name}
+      role={profile.role}
+      company={profile.company}
+      location={profile.location}
+      headline={profile.headline}
+      summary={profile.summary}
+      hasProjects={isVisible('proyectos')}
+    />
+
+    {
+      isVisible('enfoque') && (
+        <Section
+          id="enfoque"
+          number={numberOf('enfoque')}
+          label="Enfoque"
+          title="Cómo pienso el software"
+          intro="Tres reglas que guían cada decisión de diseño, del modelo de dominio al último componente."
+        >
+          <Principles principles={profile.principles} />
+        </Section>
+      )
+    }
+
+    {
+      isVisible('experiencia') && (
+        <Section id="experiencia" number={numberOf('experiencia')} label="Experiencia" title="Dónde he construido">
+          <Experience roles={profile.experience} />
+        </Section>
+      )
+    }
+
+    {
+      isVisible('proyectos') && (
+        <Section
+          id="proyectos"
+          number={numberOf('proyectos')}
+          label="Proyectos"
+          title="Proyectos seleccionados"
+          intro="Productos en producción y proyectos independientes, de la arquitectura a la interfaz."
+        >
+          <Projects projects={profile.projects} />
+        </Section>
+      )
+    }
+
+    {
+      isVisible('stack') && (
+        <Section
+          id="stack"
+          number={numberOf('stack')}
+          label="Stack"
+          title="Cómo evolucionó mi stack"
+          intro="Las tecnologías de cada etapa desde 2022, y el stack con el que trabajo actualmente."
+        >
+          {profile.evolution.length > 0 && <Evolution milestones={profile.evolution} />}
+          {profile.stack.length > 0 && <Stack groups={profile.stack} />}
+        </Section>
+      )
+    }
+
+    <Contact email={profile.email} links={profile.links} />
+  </main>
+
+  <Footer name={profile.name} />
+</BaseLayout>

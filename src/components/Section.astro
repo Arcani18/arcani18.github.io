@@ -1,0 +1,46 @@
+---
+interface Props {
+  id: string;
+  number: string;
+  label: string;
+  title: string;
+  intro?: string;
+}
+
+const { id, number, label, title, intro } = Astro.props;
+---
+
+<section id={id} class="section" aria-labelledby={`${id}-title`}>
+  <div class="container">
+    <header class="section__header">
+      <p class="eyebrow">{number} / {label}</p>
+      <h2 id={`${id}-title`} class="section__title">{title}</h2>
+      {intro && <p class="section__intro">{intro}</p>}
+    </header>
+    <slot />
+  </div>
+</section>
+
+<style>
+  .section {
+    padding-block: var(--space-12);
+    border-top: 1px solid var(--border);
+  }
+
+  .section__header {
+    display: grid;
+    gap: var(--space-2);
+    max-width: 64ch;
+    margin-bottom: var(--space-6);
+  }
+
+  .section__title {
+    font-size: clamp(1.875rem, 2vw + 1.25rem, 2.625rem);
+    font-weight: 700;
+  }
+
+  .section__intro {
+    color: var(--text-muted);
+    font-size: 1.0625rem;
+  }
+</style>

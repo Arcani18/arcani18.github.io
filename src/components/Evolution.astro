@@ -1,0 +1,128 @@
+---
+import type { Milestone } from '../data/profile';
+import TechTag from './TechTag.astro';
+
+interface Props {
+  milestones: Milestone[];
+}
+
+const { milestones } = Astro.props;
+---
+
+<ol class="evolution">
+  {
+    milestones.map((milestone) => (
+      <li class="milestone">
+        <span class="milestone__node" aria-hidden="true" />
+        <p class="milestone__year">{milestone.year}</p>
+        <h3 class="milestone__title">{milestone.title}</h3>
+        <p class="milestone__description">{milestone.description}</p>
+        {milestone.stack.length > 0 && (
+          <ul class="milestone__stack" aria-label={`Stack de ${milestone.title}`}>
+            {milestone.stack.map((tech) => (
+              <TechTag name={tech} />
+            ))}
+          </ul>
+        )}
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  /* Mobile/tablet: vertical rail on the left. Desktop: horizontal rail on top. */
+  .evolution {
+    --node-size: 16px;
+    --rail-offset: calc(var(--node-size) / 2 - 1px);
+
+    position: relative;
+    display: grid;
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0 0 0 var(--space-5);
+    list-style: none;
+  }
+
+  .evolution::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: var(--rail-offset);
+    width: 2px;
+    background: linear-gradient(var(--border-strong), var(--accent));
+  }
+
+  .milestone {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: 12px;
+  }
+
+  .milestone__node {
+    position: absolute;
+    top: 4px;
+    left: calc(-1 * var(--space-5));
+    width: var(--node-size);
+    height: var(--node-size);
+    border: 2px solid var(--border-strong);
+    border-radius: 50%;
+    background: var(--bg);
+  }
+
+  /* The latest stage is "now": filled with the accent. */
+  .milestone:last-child .milestone__node {
+    border-color: var(--accent);
+    background: var(--accent);
+    box-shadow: 0 0 0 6px var(--accent-soft);
+  }
+
+  @media (min-width: 1024px) {
+    .evolution {
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, 1fr);
+      gap: var(--space-3);
+      padding: var(--space-5) 0 0;
+    }
+
+    .evolution::before {
+      top: var(--rail-offset);
+      right: 0;
+      bottom: auto;
+      left: 0;
+      width: auto;
+      height: 2px;
+      background: linear-gradient(90deg, var(--border-strong), var(--accent));
+    }
+
+    .milestone__node {
+      top: calc(-1 * var(--space-5));
+      left: 0;
+    }
+  }
+
+  .milestone__year {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .milestone__title {
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  .milestone__description {
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+  }
+
+  .milestone__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin-top: 4px;
+  }
+</style>

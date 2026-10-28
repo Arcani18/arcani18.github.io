@@ -1,0 +1,124 @@
+---
+import type { Role } from '../data/profile';
+import TechTag from './TechTag.astro';
+
+interface Props {
+  roles: Role[];
+}
+
+const { roles } = Astro.props;
+---
+
+<ol class="timeline">
+  {
+    roles.map((role) => (
+      <li class="role">
+        <div class="role__meta">
+          {role.period && <p class="role__period">{role.period}</p>}
+          <p class="role__company">{role.company}</p>
+        </div>
+
+        <div class="role__body">
+          <h3 class="role__position">{role.position}</h3>
+          <p class="role__summary">{role.summary}</p>
+          {role.highlights.length > 0 && (
+            <ul class="role__highlights">
+              {role.highlights.map((highlight) => (
+                <li>{highlight}</li>
+              ))}
+            </ul>
+          )}
+          {role.tags.length > 0 && (
+            <ul class="tag-list" aria-label="Tecnologías">
+              {role.tags.map((tag) => (
+                <TechTag name={tag} size="sm" />
+              ))}
+            </ul>
+          )}
+        </div>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .timeline {
+    display: grid;
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .role {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  @media (min-width: 768px) {
+    .role {
+      grid-template-columns: 200px 1fr;
+      gap: var(--space-6);
+    }
+  }
+
+  .role__meta {
+    display: grid;
+    align-content: start;
+    gap: 4px;
+  }
+
+  .role__period {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .role__company {
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  .role__body {
+    display: grid;
+    gap: var(--space-2);
+    padding-left: var(--space-3);
+    border-left: 2px solid var(--border);
+  }
+
+  .role__position {
+    font-size: 1.375rem;
+    font-weight: 600;
+  }
+
+  .role__summary {
+    color: var(--text-muted);
+  }
+
+  .role__highlights {
+    display: grid;
+    gap: 12px;
+    margin-bottom: var(--space-1);
+  }
+
+  .role__highlights li {
+    position: relative;
+    padding-left: var(--space-3);
+  }
+
+  .role__highlights li::before {
+    content: '';
+    position: absolute;
+    top: 0.7em;
+    left: 0;
+    width: 12px;
+    height: 2px;
+    background: var(--accent);
+  }
+</style>

@@ -1,0 +1,66 @@
+---
+import type { Principle } from '../data/profile';
+
+interface Props {
+  principles: Principle[];
+}
+
+const { principles } = Astro.props;
+---
+
+<ol class="principles">
+  {
+    principles.map((principle, index) => (
+      <li class="principle">
+        <span class="principle__index" aria-hidden="true">
+          {String(index + 1).padStart(2, '0')}
+        </span>
+        <h3 class="principle__title">{principle.title}</h3>
+        <p class="principle__description">{principle.description}</p>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .principles {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 768px) {
+    .principles {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-3);
+    }
+  }
+
+  .principle {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+
+  .principle__index {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .principle__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .principle__description {
+    color: var(--text-muted);
+  }
+</style>

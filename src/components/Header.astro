@@ -1,0 +1,218 @@
+---
+interface NavItem {
+  id: string;
+  label: string;
+}
+
+interface Props {
+  name: string;
+  navItems: NavItem[];
+}
+
+const { name, navItems } = Astro.props;
+const initials = name
+  .split(' ')
+  .map((word) => word[0])
+  .join('')
+  .slice(0, 2);
+---
+
+<header class="header">
+  <div class="container header__inner">
+    <a class="brand" href="#inicio" aria-label={`${name}, ir al inicio`}>
+      <span class="brand__mark" aria-hidden="true">{initials}</span>
+      <span class="brand__name">{name}</span>
+    </a>
+
+    <nav class="nav" aria-label="Secciones">
+      <ul class="nav__list">
+        {
+          navItems.map((item) => (
+            <li>
+              <a class="nav__link" href={`#${item.id}`}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="Cambiar tema">
+      <svg class="theme-toggle__icon theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+      </svg>
+      <svg class="theme-toggle__icon theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"></circle>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+      </svg>
+    </button>
+
+    <a class="btn btn--primary btn--sm" href="#contacto">Contacto</a>
+  </div>
+</header>
+
+<script>
+  type Theme = 'light' | 'dark';
+
+  const root = document.documentElement;
+  const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+  const currentTheme = (): Theme => (root.dataset.theme === 'dark' ? 'dark' : 'light');
+
+  // The label announces the action, not the state: "Cambiar a tema oscuro" while light.
+  const syncLabel = () => {
+    if (!toggle) return;
+    const label = currentTheme() === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro';
+    toggle.setAttribute('aria-label', label);
+    toggle.title = label;
+  };
+
+  const applyTheme = (theme: Theme) => {
+    root.dataset.theme = theme;
+    syncLabel();
+    try {
+      localStorage.setItem('theme', theme);
+    } catch {
+      // Storage blocked (private mode, in-app browsers): the choice just lasts for this page view.
+    }
+  };
+
+  toggle?.addEventListener('click', () => {
+    const next: Theme = currentTheme() === 'dark' ? 'light' : 'dark';
+    if (document.startViewTransition && !prefersReducedMotion.matches) {
+      document.startViewTransition(() => applyTheme(next));
+    } else {
+      applyTheme(next);
+    }
+  });
+
+  syncLabel();
+</script>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: saturate(180%) blur(12px);
+    -webkit-backdrop-filter: saturate(180%) blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    height: var(--header-height);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-right: auto;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .brand__mark {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--text);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 700;
+  }
+
+  /* Mobile: brand + contact CTA only; the sections read linearly anyway. */
+  .nav {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .nav {
+      display: block;
+    }
+  }
+
+  .nav__list {
+    display: flex;
+    gap: var(--space-1);
+  }
+
+  .nav__link {
+    display: inline-block;
+    padding: var(--space-1) 12px;
+    border-radius: var(--radius-pill);
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+      color 150ms ease,
+      background-color 150ms ease;
+  }
+
+  .nav__link:hover {
+    color: var(--text);
+    background: var(--surface-muted);
+  }
+
+  .nav__link:active {
+    background: var(--border);
+  }
+
+  .theme-toggle {
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease,
+      transform 150ms ease;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--text);
+    background: var(--surface-muted);
+  }
+
+  .theme-toggle:active {
+    transform: translateY(1px);
+  }
+
+  .theme-toggle__icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Show the theme you'd switch to: moon while light, sun while dark. */
+  .theme-toggle__sun,
+  :global([data-theme='dark']) .theme-toggle__moon {
+    display: none;
+  }
+
+  :global([data-theme='dark']) .theme-toggle__sun {
+    display: block;
+  }
+
+  /* Without JS the theme can't be switched, so don't offer the control. */
+  :global(:root:not([data-theme])) .theme-toggle {
+    display: none;
+  }
+</style>

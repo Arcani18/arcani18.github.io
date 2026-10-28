@@ -1,0 +1,87 @@
+---
+import type { StackGroup } from '../data/profile';
+import TechTag from './TechTag.astro';
+
+interface Props {
+  groups: StackGroup[];
+}
+
+const { groups } = Astro.props;
+---
+
+<div class="stack-current">
+  <h3 class="stack-current__title">Stack actual</h3>
+  <div class="stack">
+    {
+      groups.map((group) => (
+        <div class="stack__group">
+          <h4 class="stack__area">{group.area}</h4>
+          <ul class="stack__items">
+            {group.items.map((item) => (
+              <TechTag name={item} />
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  /* Sits below the evolution timeline when both are present. */
+  .stack-current {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  :global(.evolution) + .stack-current {
+    margin-top: var(--space-12);
+  }
+
+  .stack-current__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .stack {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .stack {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-4) var(--space-3);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .stack {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .stack__group {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+  }
+
+  .stack__area {
+    margin: 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .stack__items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+</style>

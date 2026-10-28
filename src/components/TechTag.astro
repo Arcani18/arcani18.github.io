@@ -1,0 +1,47 @@
+---
+import TechIcon from './TechIcon.astro';
+
+interface Props {
+  name: string;
+  // sm: metadata inside cards (experience, projects). md: primary content (stack, timeline).
+  size?: 'sm' | 'md';
+}
+
+const { name, size = 'md' } = Astro.props;
+---
+
+<li class:list={['tech-tag', `tech-tag--${size}`]}>
+  <TechIcon name={name} />
+  {name}
+</li>
+
+<style>
+  .tech-tag {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    line-height: 1.2;
+  }
+
+  .tech-tag--md {
+    --tech-icon-size: 18px;
+
+    gap: var(--space-1);
+    padding: 6px 12px 6px 8px;
+    background: var(--surface);
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+
+  .tech-tag--sm {
+    --tech-icon-size: 14px;
+
+    gap: 6px;
+    padding: 4px 10px 4px 6px;
+    background: var(--surface-muted);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+</style>

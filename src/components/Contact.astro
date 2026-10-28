@@ -1,0 +1,209 @@
+---
+import type { Link } from '../data/profile';
+
+interface Props {
+  email: string;
+  links: Link[];
+}
+
+const { email, links } = Astro.props;
+---
+
+<section id="contacto" class="contact" aria-labelledby="contacto-title">
+  <div class="container">
+    <div class="contact__card">
+      <p class="eyebrow">Contacto</p>
+      <h2 id="contacto-title" class="contact__title">¿Construimos algo juntos?</h2>
+      <p class="contact__text">
+        Escríbeme para hablar de arquitectura de software, de un proyecto o de una oportunidad.
+      </p>
+
+      <a class="contact__email" href={`mailto:${email}`} data-email-text>{email}</a>
+
+      <div class="contact__actions">
+        <a class="btn btn--primary" href={`mailto:${email}`}>Enviar correo</a>
+        <button class="btn btn--ghost copy-button" type="button" data-copy-email={email} data-state="idle">
+          <span data-label>Copiar correo</span>
+        </button>
+        <p class="sr-only" role="status" data-copy-status></p>
+      </div>
+
+      {
+        links.length > 0 && (
+          <ul class="contact__links">
+            {links.map((link) => (
+              <li>
+                <a class="contact__link" href={link.href} target="_blank" rel="noopener noreferrer">
+                  {link.label}
+                  <span aria-hidden="true">↗</span>
+                  <span class="sr-only">(se abre en una pestaña nueva)</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  const LABELS = {
+    idle: 'Copiar correo',
+    loading: 'Copiando…',
+    success: 'Correo copiado',
+    error: 'Cópialo manualmente',
+  } as const;
+
+  type CopyState = keyof typeof LABELS;
+
+  const RESET_DELAY_MS = 2400;
+
+  // Fallback for in-app browsers (LinkedIn, Instagram...) that block the Clipboard API:
+  // leave the address selected so the visitor can copy it by hand.
+  const selectEmailText = () => {
+    const emailText = document.querySelector('[data-email-text]');
+    const selection = window.getSelection();
+    if (!emailText || !selection) return;
+    const range = document.createRange();
+    range.selectNodeContents(emailText);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  };
+
+  document.querySelectorAll<HTMLButtonElement>('[data-copy-email]').forEach((button) => {
+    const label = button.querySelector('[data-label]');
+    const status = button.parentElement?.querySelector('[data-copy-status]');
+    let resetTimer: number | undefined;
+
+    const setState = (state: CopyState) => {
+      button.dataset.state = state;
+      button.disabled = state === 'loading';
+      if (label) label.textContent = LABELS[state];
+      if (status && state !== 'idle') status.textContent = LABELS[state];
+    };
+
+    button.addEventListener('click', async () => {
+      // A second click while copying is a no-op; after that it just restarts the reset timer.
+      if (button.dataset.state === 'loading') return;
+      window.clearTimeout(resetTimer);
+      setState('loading');
+
+      try {
+        // Throws when the Clipboard API is unavailable (e.g. non-secure context) or denied.
+        await navigator.clipboard.writeText(button.dataset.copyEmail ?? '');
+        setState('success');
+      } catch {
+        setState('error');
+        selectEmailText();
+      }
+
+      resetTimer = window.setTimeout(() => setState('idle'), RESET_DELAY_MS);
+    });
+  });
+</script>
+
+<style>
+  .contact {
+    padding-block: var(--space-12);
+    border-top: 1px solid var(--border);
+  }
+
+  .contact__card {
+    position: relative;
+    display: grid;
+    justify-items: start;
+    gap: var(--space-2);
+    padding: var(--space-6) var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    overflow: hidden;
+  }
+
+  .contact__card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 100% 0%, var(--accent-soft), transparent 70%);
+    pointer-events: none;
+  }
+
+  @media (min-width: 768px) {
+    .contact__card {
+      padding: var(--space-8) var(--space-6);
+    }
+  }
+
+  .contact__title {
+    font-size: clamp(1.875rem, 2vw + 1.25rem, 2.625rem);
+    font-weight: 700;
+  }
+
+  .contact__text {
+    max-width: 52ch;
+    color: var(--text-muted);
+    font-size: 1.0625rem;
+  }
+
+  .contact__email {
+    margin-top: var(--space-1);
+    font-size: clamp(1.125rem, 1.5vw + 0.75rem, 1.5rem);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+    overflow-wrap: anywhere;
+    transition: color 150ms ease;
+  }
+
+  .contact__email:hover {
+    color: var(--accent);
+  }
+
+  .contact__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+
+  .copy-button {
+    min-width: 168px;
+  }
+
+  .copy-button[data-state='loading'] {
+    cursor: progress;
+  }
+
+  .copy-button[data-state='success'] {
+    border-color: var(--success);
+    color: var(--success);
+  }
+
+  .copy-button[data-state='error'] {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+
+  .contact__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+  }
+
+  .contact__link {
+    display: inline-flex;
+    gap: 4px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 150ms ease;
+  }
+
+  .contact__link:hover {
+    color: var(--accent);
+  }
+</style>
