@@ -2,6 +2,9 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "portfolio",
   "compatibility_date": "2026-10-28",
+  // Public URL: portfolio.garpzos2001.workers.dev. Preview URLs let branch builds be reviewed before merging.
+  "workers_dev": true,
+  "preview_urls": true,
   // Static site only: Cloudflare serves the Astro build output, no Worker script needed.
   "assets": {
     "directory": "./dist"
