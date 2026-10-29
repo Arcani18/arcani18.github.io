@@ -1,6 +1,6 @@
 # Portfolio · Daniel García
 
-Landing page de mi perfil profesional como Software Architect. Es un sitio estático hecho con [Astro](https://astro.build) y se publica en GitHub Pages con GitHub Actions.
+Landing page de mi perfil profesional como Software Architect. Es un sitio estático hecho con [Astro](https://astro.build) y desplegado en Cloudflare Workers (static assets).
 
 ## Stack y por qué
 
@@ -25,7 +25,7 @@ src/
 │  ├─ Header, Hero, Section (wrapper numerado), Footer
 │  ├─ Principles, Experience, Projects, Contact
 │  └─ Evolution (cronograma del stack) + TechIcon, Stack (stack actual)
-└─ styles/global.css      ← tokens + primitives (.btn, .tag, .container)
+└─ styles/global.css      ← tokens + primitives (.btn, .tag-list, .container)
 ```
 
 Para actualizar el contenido solo se edita `src/data/profile.ts`. Si un array (`projects`, `experience`, etc.) queda vacío, su sección y su link del nav desaparecen y la numeración se recalcula.
@@ -41,23 +41,17 @@ npm run build     # genera dist/
 npm run preview   # sirve dist/ para revisarlo
 ```
 
-## Deploy a GitHub Pages
+## Deploy a Cloudflare
 
-1. Crea el repo en GitHub y haz push a `main`.
-2. En el repo ve a **Settings → Pages → Build and deployment → Source** y elige **GitHub Actions**.
-3. Cada push a `main` corre `.github/workflows/deploy.yml`, que hace el build y lo publica.
+El sitio corre en **Cloudflare Workers con static assets**: Cloudflare sirve `dist/` desde su CDN y no hay código de Worker. La config vive en `wrangler.jsonc`.
 
-El workflow toma `origin` y `base_path` de `actions/configure-pages` y se los pasa a Astro (`SITE` / `BASE_PATH`), así que **no hay que tocar `astro.config.mjs`** sin importar el nombre del repo:
+**Automático (Workers Builds)**: el proyecto de Cloudflare está conectado a este repo de GitHub. Cada push a `main` corre `npm run build` y después `npx wrangler deploy`. La versión de Node sale de `.nvmrc`.
 
-| Nombre del repo         | URL final                              |
-| ----------------------- | -------------------------------------- |
-| `<usuario>.github.io`   | `https://<usuario>.github.io/`         |
-| `portfolio` (o cualquiera) | `https://<usuario>.github.io/portfolio/` |
-
-Para probar localmente el build con base path de project site:
+**Manual**, por si hace falta desplegar desde local:
 
 ```bash
-MSYS_NO_PATHCONV=1 BASE_PATH=/portfolio npm run build && npm run preview
+npx wrangler login   # una sola vez, abre el navegador
+npm run deploy       # build + wrangler deploy
 ```
 
-> En Windows con Git Bash (o con npm configurado con `script-shell` = bash), MSYS convierte `/portfolio` en `C:/Program Files/Git/portfolio`. `MSYS_NO_PATHCONV=1` lo evita. En GitHub Actions (Ubuntu) no aplica.
+La URL de producción está en `site` dentro de `astro.config.mjs`, y Astro la usa para el canonical y `og:url`. Si se agrega un dominio propio, hay que actualizarla ahí.

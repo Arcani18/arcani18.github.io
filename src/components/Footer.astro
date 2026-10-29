@@ -1,4 +1,6 @@
 ---
+import TechIcon from './TechIcon.astro';
+
 interface Props {
   name: string;
 }
@@ -9,7 +11,12 @@ const year = new Date().getFullYear();
 
 <footer class="footer">
   <div class="container footer__inner">
-    <p>© {year} {name}. Hecho con Astro y publicado en GitHub Pages.</p>
+    <p>
+      © {year} {name}. Hecho con
+      <span class="footer__tech"><TechIcon name="Astro" />Astro</span>
+      y desplegado en
+      <span class="footer__tech"><TechIcon name="Cloudflare" />Cloudflare</span>.
+    </p>
     <a class="footer__top" href="#inicio">Volver arriba <span aria-hidden="true">↑</span></a>
   </div>
 </footer>
@@ -28,6 +35,16 @@ const year = new Date().getFullYear();
     align-items: center;
     justify-content: space-between;
     gap: var(--space-2);
+  }
+
+  .footer__tech {
+    --tech-icon-size: 14px;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text);
+    vertical-align: bottom;
   }
 
   .footer__top {

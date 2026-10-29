@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "portfolio",
+  "compatibility_date": "2026-10-28",
+  // Static site only: Cloudflare serves the Astro build output, no Worker script needed.
+  "assets": {
+    "directory": "./dist"
+  }
+}
